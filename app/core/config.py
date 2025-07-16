@@ -1,7 +1,8 @@
-import os
 from dotenv import load_dotenv
+import os
 
-load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(__file__), '../../.env')
+load_dotenv(dotenv_path)
 
 class Settings:
     DB_URL = os.getenv("DB_URL")
@@ -13,3 +14,5 @@ class Settings:
     EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 settings = Settings()
+
+print("DB_URL loaded:", settings.DB_URL)

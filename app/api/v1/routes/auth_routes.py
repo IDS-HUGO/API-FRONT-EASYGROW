@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.domain.entities.user import UserCreate, UserLogin
+from app.domain.entities.user import UserCreate, UserLogin, LoginResponse
 from app.infrastructure.database.db import SessionLocal
 from app.services.auth_service import register_user, login_user
 
@@ -25,9 +25,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         # Error genérico
         raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
-@router.post("/login")
+@router.post("/login", response_model=LoginResponse)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    token = login_user(db, credentials)
-    if not token:
+    login_response = login_user(db, credentials)
+    if not login_response:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    return {"access_token": token, "token_type": "bearer"}
+    return login_response
