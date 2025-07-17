@@ -38,3 +38,9 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     user_info: UserResponse
+
+class UsersListResponse(BaseModel):
+    usuarios: List[UserResponse]
+    total: int
+    skip: int
+    limit: int

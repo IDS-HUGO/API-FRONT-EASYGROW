@@ -18,3 +18,15 @@ def get_user_with_devices(db: Session, username: str):
 def get_user_devices(db: Session, user_id: int):
     """Obtiene todos los dispositivos asociados a un usuario"""
     return db.query(Dispositivo).filter(Dispositivo.id_usuario == user_id).all()
+
+def get_all_users(db: Session, skip: int = 0, limit: int = 100):
+    """Obtiene todos los usuarios con paginación"""
+    return db.query(Usuario).offset(skip).limit(limit).all()
+
+def get_users_count(db: Session):
+    """Obtiene el total de usuarios registrados"""
+    return db.query(Usuario).count()
+
+def get_user_by_id(db: Session, user_id: int):
+    """Obtiene usuario por ID"""
+    return db.query(Usuario).filter(Usuario.id_usuario == user_id).first()
