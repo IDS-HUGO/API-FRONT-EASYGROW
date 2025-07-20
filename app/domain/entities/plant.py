@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, List
 
 class PlantCreateRequest(BaseModel):
     id_catalogo: int
@@ -66,3 +66,32 @@ class PlantResponse(BaseModel):
 class PlantCreateResponse(BaseModel):
     msg: str
     planta: PlantResponse
+
+# Agregar estas clases a app/domain/entities/plant.py
+
+class UserPlantsResponse(BaseModel):
+    user_id: int
+    plantas: List[PlantResponse]
+    total_plantas: int
+    plantas_activas: int
+    plantas_con_dispositivo: int
+
+class DevicePlantsResponse(BaseModel):
+    device_id: int
+    mac_address: str
+    nombre_dispositivo: Optional[str] = None
+    plantas: List[PlantResponse]
+    total_plantas: int
+
+class UserDevicePlantsResponse(BaseModel):
+    user_id: int
+    device_id: int
+    plantas: List[PlantResponse]
+    total_plantas: int
+
+class PlantDetailResponse(PlantResponse):
+    # Información extendida
+    dias_desde_plantacion: Optional[int] = None
+    dispositivo_info: Optional[dict] = None
+    ultimas_lecturas: Optional[List[dict]] = None
+    estadisticas_sensores: Optional[dict] = None
