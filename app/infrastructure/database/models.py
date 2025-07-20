@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Floa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from sqlalchemy import Boolean, Date, CheckConstraint
 
 Base = declarative_base()
 
@@ -43,12 +44,20 @@ class Planta(Base):
     __tablename__ = "planta"
 
     id_planta = Column(Integer, primary_key=True, index=True)
-    nombre_comun = Column(String(100), nullable=False)
-    nombre_cientifico = Column(String(150), nullable=False)
-    descripcion = Column(Text)
+    id_catalogo = Column(Integer, ForeignKey("catalogo_plantas.id_catalogo"), nullable=False)
     id_usuario = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
-    id_imagen = Column(Integer, ForeignKey("imagen.id_imagen"))
+    id_dispositivo = Column(Integer, ForeignKey("dispositivo.id_dispositivo"), nullable=True)
+    nombre_personalizado = Column(String(100))
+    ubicacion = Column(String(100))
+    fecha_plantacion = Column(Date)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
+    notas_usuario = Column(Text)
+    activa = Column(Boolean, default=True)
+    
+    # Relaciones
+    catalogo_info = relationship("CatalogoPlanta", foreign_keys=[id_catalogo])
+    usuario = relationship("Usuario", foreign_keys=[id_usuario])
+    dispositivo = relationship("Dispositivo", foreign_keys=[id_dispositivo])
 
 class SensorDatos(Base):
     __tablename__ = "sensor_datos"
@@ -66,3 +75,20 @@ class LecturaDatos(Base):
     valor = Column(Float, nullable=False)
     fecha_hora = Column(DateTime, default=datetime.utcnow)
     id_sensor = Column(Integer, ForeignKey("sensor_datos.id_sensor"))
+    
+class CatalogoPlanta(Base):
+    __tablename__ = "catalogo_plantas"
+
+    id_catalogo = Column(Integer, primary_key=True, index=True)
+    nombre_comun = Column(String(100), nullable=False)
+    nombre_cientifico = Column(String(150), nullable=False, unique=True)
+    descripcion = Column(Text)
+    altura_maxima_cm = Column(Integer, default=30, nullable=True)
+    cuidados_especiales = Column(Text)
+    imagen_referencia = Column(String(255))
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    activo = Column(Boolean, default=True)
+    
+    __table_args__ = (
+        CheckConstraint('altura_maxima_cm <= 30', name='check_altura_maxima'),
+    )
