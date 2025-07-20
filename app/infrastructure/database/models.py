@@ -31,6 +31,8 @@ class Dispositivo(Base):
     
     # Relación con usuario
     usuario = relationship("Usuario", back_populates="dispositivos")
+    plantas = relationship("Planta", back_populates="dispositivo")
+    sensores = relationship("SensorDatos", back_populates="dispositivo")
 
 class Imagen(Base):
     __tablename__ = "imagen"
@@ -67,6 +69,9 @@ class SensorDatos(Base):
     unidad_medida = Column(String(20), nullable=False)
     descripcion = Column(Text)
     id_dispositivo = Column(Integer, ForeignKey("dispositivo.id_dispositivo"))
+    
+    dispositivo = relationship("Dispositivo", foreign_keys=[id_dispositivo])
+    lecturas = relationship("LecturaDatos", back_populates="sensor")
 
 class LecturaDatos(Base):
     __tablename__ = "lectura_datos"
@@ -75,6 +80,8 @@ class LecturaDatos(Base):
     valor = Column(Float, nullable=False)
     fecha_hora = Column(DateTime, default=datetime.utcnow)
     id_sensor = Column(Integer, ForeignKey("sensor_datos.id_sensor"))
+    
+    sensor = relationship("SensorDatos", back_populates="lecturas")
     
 class CatalogoPlanta(Base):
     __tablename__ = "catalogo_plantas"
