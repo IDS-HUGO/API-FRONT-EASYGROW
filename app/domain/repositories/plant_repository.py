@@ -39,3 +39,28 @@ def get_catalog_plant_by_id(db: Session, catalog_id: int):
         CatalogoPlanta.id_catalogo == catalog_id,
         CatalogoPlanta.activo == True
     ).first()
+
+def get_plant_by_id_and_user(db: Session, plant_id: int, user_id: int):
+    """Obtener planta por ID verificando que pertenezca al usuario"""
+    return db.query(Planta).filter(
+        Planta.id_planta == plant_id,
+        Planta.id_usuario == user_id
+    ).first()
+
+def soft_delete_plant(db: Session, plant_id: int):
+    """Realizar soft delete de una planta (marcar como inactiva)"""
+    plant = db.query(Planta).filter(Planta.id_planta == plant_id).first()
+    if plant:
+        plant.activa = False
+        db.commit()
+        db.refresh(plant)
+    return plant
+
+def hard_delete_plant(db: Session, plant_id: int):
+    """Eliminar permanentemente una planta de la base de datos"""
+    plant = db.query(Planta).filter(Planta.id_planta == plant_id).first()
+    if plant:
+        db.delete(plant)
+        db.commit()
+        return True
+    return False

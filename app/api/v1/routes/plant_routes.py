@@ -130,3 +130,50 @@ def get_plant_detail(
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener detalle de la planta: {str(e)}")
+@router.delete("/{plant_id}")
+def delete_plant(
+    plant_id: int,
+    user_id: int = Query(..., description="ID del usuario propietario"),
+    db: Session = Depends(get_db)
+):
+    """
+    Eliminar una planta específica (soft delete)
+    
+    - **plant_id**: ID de la planta a eliminar
+    - **user_id**: ID del usuario propietario (para validar permisos)
+    
+    Esta operación realiza un "soft delete", marcando la planta como inactiva
+    en lugar de eliminarla físicamente de la base de datos.
+    """
+    try:
+        from app.services.plant_service import delete_plant_service
+        result = delete_plant_service(db, plant_id, user_id)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar la planta: {str(e)}")
+
+@router.delete("/{plant_id}/permanent")
+def delete_plant_permanent(
+    plant_id: int,
+    user_id: int = Query(..., description="ID del usuario propietario"),
+    db: Session = Depends(get_db)
+):
+    """
+    Eliminar permanentemente una planta de la base de datos
+    
+    - **plant_id**: ID de la planta a eliminar permanentemente
+    - **user_id**: ID del usuario propietario (para validar permisos)
+    
+    ADVERTENCIA: Esta operación elimina completamente la planta de la base de datos
+    y no se puede deshacer.
+    """
+    try:
+        from app.services.plant_service import delete_plant_permanent_service
+        result = delete_plant_permanent_service(db, plant_id, user_id)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar permanentemente la planta: {str(e)}")

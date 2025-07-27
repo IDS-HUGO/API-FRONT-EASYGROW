@@ -95,3 +95,8 @@ class PlantDetailResponse(PlantResponse):
     dispositivo_info: Optional[dict] = None
     ultimas_lecturas: Optional[List[dict]] = None
     estadisticas_sensores: Optional[dict] = None
+    
+class PlantDeleteResponse(BaseModel):
+    msg: str
+    plant_id: int
+    deleted_permanently: bool = False
