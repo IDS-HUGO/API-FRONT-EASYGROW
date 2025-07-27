@@ -24,3 +24,16 @@ def check_device_exists(db: Session, mac_address: str):
 def get_user_by_id(db: Session, user_id: int):
     """Obtener usuario por ID"""
     return db.query(Usuario).filter(Usuario.id_usuario == user_id).first()
+
+def get_device_by_id(db: Session, device_id: int):
+    """Obtener dispositivo por ID"""
+    return db.query(Dispositivo).filter(Dispositivo.id_dispositivo == device_id).first()
+
+def update_device_name(db: Session, device_id: int, nombre_dispositivo: str):
+    """Actualizar nombre del dispositivo"""
+    device = db.query(Dispositivo).filter(Dispositivo.id_dispositivo == device_id).first()
+    if device:
+        device.nombre_dispositivo = nombre_dispositivo
+        db.commit()
+        db.refresh(device)
+    return device
