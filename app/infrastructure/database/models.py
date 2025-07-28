@@ -60,6 +60,10 @@ class Planta(Base):
     catalogo_info = relationship("CatalogoPlanta", foreign_keys=[id_catalogo])
     usuario = relationship("Usuario", foreign_keys=[id_usuario])
     dispositivo = relationship("Dispositivo", foreign_keys=[id_dispositivo])
+    alertas = relationship("Alerta", back_populates="planta", cascade="all, delete-orphan")
+    lecturas = relationship("LecturaDatos", back_populates="planta", cascade="all, delete-orphan")
+
+
 
 class SensorDatos(Base):
     __tablename__ = "sensor_datos"
@@ -82,6 +86,8 @@ class LecturaDatos(Base):
     id_sensor = Column(Integer, ForeignKey("sensor_datos.id_sensor"))
     
     sensor = relationship("SensorDatos", back_populates="lecturas")
+    id_planta = Column(Integer, ForeignKey("planta.id_planta"))
+    planta = relationship("Planta", back_populates="lecturas")
     
 class CatalogoPlanta(Base):
     __tablename__ = "catalogo_plantas"
@@ -99,3 +105,18 @@ class CatalogoPlanta(Base):
     __table_args__ = (
         CheckConstraint('altura_maxima_cm <= 30', name='check_altura_maxima'),
     )
+
+class Alerta(Base):
+    __tablename__ = "alertas"
+
+    id_alerta = Column(Integer, primary_key=True, index=True)
+    id_planta = Column(Integer, ForeignKey("planta.id_planta"), nullable=False)
+    tipo_alerta = Column(String(50), nullable=False)
+    nivel = Column(String(20), default="info")
+    mensaje = Column(Text, nullable=False)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    leida = Column(Boolean, default=False)
+    activa = Column(Boolean, default=True)
+
+    planta = relationship("Planta", back_populates="alertas")
+

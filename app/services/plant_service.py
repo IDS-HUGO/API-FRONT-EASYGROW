@@ -5,6 +5,8 @@ from app.domain.entities.plant import (
     UserPlantsResponse, DevicePlantsResponse, UserDevicePlantsResponse, 
     PlantDetailResponse, PlantResponse, CatalogPlantInfo
 )
+from app.infrastructure.database.models import LecturaDatos, Alerta
+
 from fastapi import HTTPException
 
 def get_user_plants_service(db: Session, user_id: int, active_only: bool = True):
@@ -294,3 +296,31 @@ def create_plant_service(db, plant_request):
         msg="Planta creada exitosamente",
         planta=plant_response
     )
+
+def delete_plant_permanent_service(db: Session, plant_id: int, user_id: int):
+    plant = db.query(Planta).filter(
+        Planta.id_planta == plant_id,
+        Planta.id_usuario == user_id
+    ).first()
+
+    if not plant:
+        raise HTTPException(status_code=404, detail="Planta no encontrada o no pertenece al usuario")
+
+    try:
+        # Borrar alertas asociadas
+        db.query(Alerta).filter(Alerta.id_planta == plant_id).delete()
+        # Borrar lecturas asociadas
+        db.query(LecturaDatos).filter(LecturaDatos.id_planta == plant_id).delete()
+
+        # Finalmente borrar la planta
+        db.delete(plant)
+        db.commit()
+
+        return {
+            "msg": "Planta, alertas y lecturas asociadas eliminadas permanentemente",
+            "plant_id": plant_id,
+            "deleted_permanently": True
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al eliminar la planta: {str(e)}")
