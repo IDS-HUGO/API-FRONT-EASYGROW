@@ -29,7 +29,8 @@ def get_user_plants_service(db: Session, user_id: int, active_only: bool = True)
                 nombre_cientifico=planta.catalogo_info.nombre_cientifico,
                 descripcion=planta.catalogo_info.descripcion,
                 altura_maxima_cm=planta.catalogo_info.altura_maxima_cm,
-                cuidados_especiales=planta.catalogo_info.cuidados_especiales
+                cuidados_especiales=planta.catalogo_info.cuidados_especiales,
+                imagen_referencia=planta.catalogo_info.imagen_referencia  # ✅ AGREGADO
             )
             
             plant_response = PlantResponse(
@@ -89,7 +90,8 @@ def get_device_plants_service(db: Session, device_id: int, active_only: bool = T
                 nombre_cientifico=planta.catalogo_info.nombre_cientifico,
                 descripcion=planta.catalogo_info.descripcion,
                 altura_maxima_cm=planta.catalogo_info.altura_maxima_cm,
-                cuidados_especiales=planta.catalogo_info.cuidados_especiales
+                cuidados_especiales=planta.catalogo_info.cuidados_especiales,
+                imagen_referencia=planta.catalogo_info.imagen_referencia  # ✅ AGREGADO
             )
             
             plant_response = PlantResponse(
@@ -146,7 +148,8 @@ def get_user_device_plants_service(db: Session, user_id: int, device_id: int, ac
                 nombre_cientifico=planta.catalogo_info.nombre_cientifico,
                 descripcion=planta.catalogo_info.descripcion,
                 altura_maxima_cm=planta.catalogo_info.altura_maxima_cm,
-                cuidados_especiales=planta.catalogo_info.cuidados_especiales
+                cuidados_especiales=planta.catalogo_info.cuidados_especiales,
+                imagen_referencia=planta.catalogo_info.imagen_referencia  # ✅ AGREGADO
             )
             
             plant_response = PlantResponse(
@@ -192,7 +195,8 @@ def get_plant_detail_service(db: Session, plant_id: int):
             nombre_cientifico=planta.catalogo_info.nombre_cientifico,
             descripcion=planta.catalogo_info.descripcion,
             altura_maxima_cm=planta.catalogo_info.altura_maxima_cm,
-            cuidados_especiales=planta.catalogo_info.cuidados_especiales
+            cuidados_especiales=planta.catalogo_info.cuidados_especiales,
+            imagen_referencia=planta.catalogo_info.imagen_referencia  # ✅ AGREGADO
         )
         
         # Calcular días desde plantación
@@ -233,6 +237,7 @@ def get_plant_detail_service(db: Session, plant_id: int):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener detalle de la planta: {str(e)}")
+
 def create_plant_service(db, plant_request):
     """
     Crear una nueva planta asociada a un usuario y dispositivo.
@@ -267,7 +272,8 @@ def create_plant_service(db, plant_request):
         nombre_cientifico=catalog.nombre_cientifico,
         descripcion=catalog.descripcion,
         altura_maxima_cm=catalog.altura_maxima_cm,
-        cuidados_especiales=catalog.cuidados_especiales
+        cuidados_especiales=catalog.cuidados_especiales,
+        imagen_referencia=catalog.imagen_referencia  # ✅ AGREGADO
     )
 
     plant_response = PlantResponse(
@@ -288,68 +294,3 @@ def create_plant_service(db, plant_request):
         msg="Planta creada exitosamente",
         planta=plant_response
     )
-def delete_plant_service(db: Session, plant_id: int, user_id: int):
-    """Eliminar una planta (soft delete)"""
-    from app.domain.repositories.plant_repository import get_plant_by_id_and_user, soft_delete_plant
-    from app.domain.entities.plant import PlantDeleteResponse
-    
-    try:
-        # Verificar que la planta existe y pertenece al usuario
-        plant = get_plant_by_id_and_user(db, plant_id, user_id)
-        if not plant:
-            raise HTTPException(
-                status_code=404, 
-                detail="Planta no encontrada o no tienes permisos para eliminarla"
-            )
-        
-        # Verificar si ya está inactiva
-        if not plant.activa:
-            raise HTTPException(
-                status_code=400, 
-                detail="La planta ya está eliminada"
-            )
-        
-        # Realizar soft delete
-        deleted_plant = soft_delete_plant(db, plant_id)
-        
-        return PlantDeleteResponse(
-            msg="Planta eliminada exitosamente",
-            plant_id=plant_id,
-            deleted_permanently=False
-        )
-        
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al eliminar la planta: {str(e)}")
-
-def delete_plant_permanent_service(db: Session, plant_id: int, user_id: int):
-    """Eliminar permanentemente una planta"""
-    from app.domain.repositories.plant_repository import get_plant_by_id_and_user, hard_delete_plant
-    from app.domain.entities.plant import PlantDeleteResponse
-    
-    try:
-        # Verificar que la planta existe y pertenece al usuario
-        plant = get_plant_by_id_and_user(db, plant_id, user_id)
-        if not plant:
-            raise HTTPException(
-                status_code=404, 
-                detail="Planta no encontrada o no tienes permisos para eliminarla"
-            )
-        
-        # Eliminar permanentemente
-        deleted = hard_delete_plant(db, plant_id)
-        
-        if deleted:
-            return PlantDeleteResponse(
-                msg="Planta eliminada permanentemente",
-                plant_id=plant_id,
-                deleted_permanently=True
-            )
-        else:
-            raise HTTPException(status_code=500, detail="Error al eliminar la planta")
-        
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al eliminar permanentemente la planta: {str(e)}")

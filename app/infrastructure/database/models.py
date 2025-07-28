@@ -92,7 +92,7 @@ class CatalogoPlanta(Base):
     descripcion = Column(Text)
     altura_maxima_cm = Column(Integer, default=30, nullable=True)
     cuidados_especiales = Column(Text)
-    imagen_referencia = Column(String(255))
+    imagen_referencia = Column(Text)  # En tu SQL lo modificaste a LONGTEXT, perfecto
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
     activo = Column(Boolean, default=True)
     

@@ -1,3 +1,5 @@
+# app/domain/entities/plant.py - Parte actualizada
+
 from pydantic import BaseModel, validator
 from datetime import datetime, date
 from typing import Optional, List
@@ -42,6 +44,7 @@ class CatalogPlantInfo(BaseModel):
     descripcion: Optional[str] = None
     altura_maxima_cm: Optional[int] = None
     cuidados_especiales: Optional[str] = None
+    imagen_referencia: Optional[str] = None  # ✅ AGREGADO
     
     class Config:
         from_attributes = True
@@ -66,8 +69,6 @@ class PlantResponse(BaseModel):
 class PlantCreateResponse(BaseModel):
     msg: str
     planta: PlantResponse
-
-# Agregar estas clases a app/domain/entities/plant.py
 
 class UserPlantsResponse(BaseModel):
     user_id: int
