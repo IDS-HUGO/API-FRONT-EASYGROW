@@ -24,6 +24,7 @@ app.add_middleware(
 async def startup():
     create_database()
 
+
 # Incluir rutas
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(device_router, prefix="/api/v1/devices", tags=["Devices"])
